@@ -196,151 +196,21 @@ Observação.: Os valores e comportamento do gráfico podem ser diferentes a cad
 
 ## Questão 2
 
-*2. Classifique o conjunto de dados disponível no arquivo iris_log.dat usando: K-NN, Nearest Prototype Classifier, Perceptron, MLP, e ELM. Utilize normalização zscore e a estratégia de validação cruzada leave-one-out.* 
-
-*Obs.: 1. É permitido usar funções já disponíveis para o MLP. Os demais classificadores deverão ser codificados. 
-2. Na base iris_log.dat, as quatro primeiras colunas representam os atributos dos vetores de características e as três últimas representam a classe da amostra ([1 0 0], [0 1 0] e [0 0 1]).*
-
-### Parte 1: K-NN
-### Iniciando 
-Para a resolução desta questão e criação deste relatório foram usados os seguintes arquivos:
-
-* [tr2_q2_knn.sce](tr2_q2_knn.sce) - Código-fonte da classificação usando K-NN (K-Nearest Neighbors)
-* [iris_log.dat](iris_log.dat) - Conjunto de dados da questão
-* [tr2_q2_knn_1.png](tr2_q2_knn_1.png) - Imagem 1 do console para uso do K-NN
-* [tr2_q2_knn_2.png](tr2_q2_knn_2.png) - Imagem 2 do console para uso do K-NN
-* [tr2_q2_knn_3.png](tr2_q2_knn_3.png) - Imagem 3 do console para uso do K-NN
-* [tr2_q2_knn_4.png](tr2_q2_knn_4.png) - Imagem 4 do console para uso do K-NN
-* [tr2_q2_knn_5.png](tr2_q2_knn_5.png) - Imagem 5 do console para uso do K-NN
-* [tr2_q2_knn_6.png](tr2_q2_knn_6.png) - Imagem 6 do console para uso do K-NN
-
-## Código comentado
-
-```
-// SEGUNDO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
-// Questão 2 (KNN)
-// Aluno: José Lopes de Souza Filho
-// Matrícula: 389097
-// Aplicação: Scilab, versão 6.0.2
-// SO: Linux Mint 19.2 Tina
-//-----------------------------------------------------------------------------
-
-//PARTE 1: AJUSTES INICIAIS
-
-clc;    //Limpa a tela
-clear;  //Limpa as variáveis armazenadas anteriormente
-
-//Importando a base de dados iris_log.dat para a variável ibase2
-ibase2 = fscanfMat('iris_log.dat');
-
-/*separando a primeira entrada para teste posterior (leave-one-out)
-//para teste posterior basta entrar com os valores (5.1, 3.5, 1.4, 2.0) 
-e verificar retorno 1 0 0 (flor setosa) nas entradas quando solicitado*/
-ibase3 = ibase2(2:150,:);
-
-//Normalização z-score da base de dados
-C1 = mean(ibase3(:,1));     //Média da primeira coluna dos dados
-P1 = stdev(ibase3(:,1));    //Desvio padrão da primeira coluna dos dados
-C2 = mean(ibase3(:,2));     //Média da segunda coluna dos dados
-P2 = stdev(ibase3(:,2));    //Desvio padrão da segunda coluna dos dados
-C3 = mean(ibase3(:,3));     //Média da terceira coluna dos dados
-P3 = stdev(ibase3(:,3));    //desvio padrão da terceira coluna dos dados
-C4 = mean(ibase3(:,4));     //Média da quarta coluna dos dados
-P4 = stdev(ibase3(:,4));    //Desvio padrão da quarta coluna dos dados
-ibase(:,1) = (ibase3(:,1)-C1)./P1;  //Aplica Z-score na primeira coluna
-ibase(:,2) = (ibase3(:,2)-C2)./P2;  //Aplica Z-score na segunda coluna
-ibase(:,3) = (ibase3(:,3)-C3)./P3;  //Aplica Z-score na terceira coluna
-ibase(:,4) = (ibase3(:,4)-C4)./P4;  //Aplica Z-score na quarta coluna
-ibase(:,5) = (ibase3(:,5));     //Copia os dados da base para a quinta coluna
-ibase(:,6) = (ibase3(:,6));     //Copia os dados da base para a sexta coluna
-ibase(:,7) = (ibase3(:,7));     //Copia os dados da base para a sétima coluna
-
-//PARTE 2: SOLICITA OS DADOS DO USUÁRIO
-
-disp('---------------- ROBÔ BOTÂNICO USANDO KNN ------------------------------');
-k = input('Quantos valores você gostaria de comparar? (k) -> ');
-G = input('Qual a largura da sépala? (em cm) -> ');
-H = input('Qual o comprimento da sépala? (em cm) -> ');
-I = input('Qual a largura da pétala? (em cm) -> ');
-J = input('Qual o comprimento da pétala? (em cm) -> ');
-
-//Normaliza os dados da entrada
-ponto_teste(1,1) = ((G-C1)/P1);
-ponto_teste(1,2) = ((H-C2)/P2);
-ponto_teste(1,3) = ((I-C3)/P3);
-ponto_teste(1,4) = ((J-C4)/P4);
-
-//PARTE 3: CALCULANDO A DISTANCIA EUCLIDIANA DOS PONTOS
-
-tam = size(ibase, 1);   // numero de linhas da matriz
-
-for i=1:tam
-    linha = ibase(i,1:4);
-    resultado(i,:) = linha-ponto_teste;
-    resultado2 = resultado.^2;
-    d_euclidiana(i,:) = sqrt(sum(resultado2(i,:)));
-end
-
-base2 = [d_euclidiana, ibase];  //Cria uma nova matriz com as distâncias euclidianas inseridas
-
-//PARTE 4: SELECIONANDO OS K MENORES VALORES
-
-for i=1:k
-    [min_valor, min_linha] = min(base2(:,1));
-    k_menores(i,:) = base2(min_linha,:);
-    base2(min_linha,:) = [];
-end
-
-disp("Os "+ string(k) +" valores mais próximos da sua escolha na base de dados são:");
-disp(k_menores);
-
-//PARTE 5: CONTANDO O NÚMERO DE ENTRADAS 1 EM CADA COLUNA DO RESULTADO
-
-[nb6, loc6] = members(1, k_menores(:,6));
-[nb7, loc7] = members(1, k_menores(:,7));
-[nb8, loc8] = members(1, k_menores(:,8));
-
-//Verifica qual das 3 colunas possui mais entradas 1. Esta será a escolha do sistema
-[w,y] = max(nb6, nb7, nb8);     
-
-//PARTE FINAL: CLASSIFICANDO O TIPO DE FLOR DE ACORDO COM O RESULTADO
-
-if y==1 then
-    disp("A flor é do tipo setosa!");
-elseif y==2 then
-    disp("A flor é do tipo versicolor!");
-elseif y==3 then
-    disp("A flor é do tipo virginica!");
-end
-```
-## Discussão dos resultados obtidos
-
-Ao executar o arquivo [tr2_q2_knn.sce](tr2_q2_knn.sce) no Scilab, podemos verificar a seguinte sequência: 
-* A solicitação do número de vizinhos mais próximos a serem analisados:
-![tr2_q2_knn_1](https://user-images.githubusercontent.com/51038132/68555032-5cb87d00-040a-11ea-88b0-8f1c6b47af0f.png)
-
-* Os dados da flor são solicitados:
-![tr2_q2_knn_2](https://user-images.githubusercontent.com/51038132/68555034-5d511380-040a-11ea-90c7-92caea9b5975.png)
-![tr2_q2_knn_3](https://user-images.githubusercontent.com/51038132/68555035-5d511380-040a-11ea-8b29-0454d22c8f45.png)
-![tr2_q2_knn_4](https://user-images.githubusercontent.com/51038132/68555036-5de9aa00-040a-11ea-9302-dc8ef870b895.png)
-![tr2_q2_knn_5](https://user-images.githubusercontent.com/51038132/68555037-5de9aa00-040a-11ea-9882-36bb224a36ec.png)
-
-* A Matriz com os k elementos mais próximo é exibida e o tipo de flor classificado:
-![tr2_q2_knn_6](https://user-images.githubusercontent.com/51038132/68555038-5de9aa00-040a-11ea-8f90-3b41f1569d8b.png)
-
-### Parte 2: Extreme Learning Machine
+*2. Crie um algoritmo genético para achar o máximo da função f(x,y) = |xsen(yπ/4) + ysen(xπ/4)|. Cada indivíduo da população é um vetor binário de 20 bits, em que os 10 primeiros representam x e os restantes representam y. As variáveis x e y pertencem ao intervalo entre 0 e 20. O crossover a ser usado é de 1 ponto.* 
 
 ### Iniciando 
 Para a resolução desta questão e criação deste relatório foram usados os seguintes arquivos:
 
-* [tr2_q2_ELM.sce](tr2_q2_ELM.sce) - Código-fonte da classificação usando ELM (Extreme Learning Machine)
-* [iris_log.dat](iris_log.dat) - Conjunto de dados da questão
+* [Q2_GA.sce](Q2_GA.sce) - Código-fonte do algoritmo genético
+* [Q2_GA_img1.png](Q2_GA_img1.png) - Retorno do console ao executar o código
 
 ## Código comentado
 
+### PARTE 1: Criação da população de cromossomos
+Para esta etapa foram criados uma população de 100 cromossomos de 20 bits. 10 bits para as 10 primeira posiçãoes e 10 para as últimas.
 ```
-// SEGUNDO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
-// Questão 2 (ELM)
+// TERCEIRO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
+// Questão 2
 // Aluno: José Lopes de Souza Filho
 // Matrícula: 389097
 // Aplicação: Scilab, versão 6.0.2
@@ -349,202 +219,69 @@ Para a resolução desta questão e criação deste relatório foram usados os s
 
 clear;
 clc;
-base = fscanfMat('iris_log.dat');
-X = base(:,1:4);
-D = base(:,5:7);
-q = 9; //qtd de neurônios ocultos
-p = 4; //qtd atributos
-a=0; b=0.1; // define intervalo dos pesos
-
-x_ones  = ones(150,1);
-X = [x_ones X];
-X = X';
-D = D';
-
-
-//----------------leave-one-out--------------------------------------------
-disp("método leave-one-out: \n");
-W=a+(b-a).*rand(q,p+1); // gera numeros uniformes
-YT1 = [];
-for x = 1 : 150
-    XT = X(:,x);
-    DT = D(:,x);
-    if (x==1)
-        XTR = X(:,x+1 : 150);
-        DTR = D(:,x+1 : 150);
-      
-    else
-        XTR = X(:,[1:x-1, x+1 : 150]);
-        DTR = D(:,[1:x-1, x+1 : 150]);
+p = grand(100,20, "uin", 0, 1); //gera uma matriz binaria 100x20
+```
+### PARTE 2: Atribui notas aos cromossomos de acordo com a função de ativação
+```
+ant = 0;
+passo = 20/1023; // valor correspondente a um bit
+for q = 1:1000 //quantidade de gerações
+    nota = [];
+    
+    for i = 1:100
+        x=0;
+        y=0;
+        //conversão da representação binária para real
+        for j = 1:10
+            if p(i,j)==1
+                x = x +(2^(10-j)*passo);
+            end
+            if p(i,j+10)==1
+                y = y +(2^(10-j)*passo);
+            end
+        end
+        a = abs(x*sin(y*%pi/4)+y*sin(x*%pi/4));
+        if a > ant
+            xm = x;
+            ym = y;
+        end
+        if ant < a
+            ant = a;
+        end
+        nota = [nota; a]; 
         
     end
-    u1 = W*XTR;
-    Z1 = 1./(1+exp(-u1));
-    Z1 = [ones(1,149); Z1];
-    M1 = DTR*Z1'*(Z1*Z1')^(-1);
+ ```
+ ### PARTE 3: Seleção dos pais e crossover 
+ ```
+    p = [p nota];
 
-    ut1 = W*XT;
-    ZT1 = 1./(1+exp(-ut1));
-    ZT1 = [ones(1,1); ZT1];
-    ach = 0;
-    YT1 = [YT1 M1*ZT1]; 
-    
-end
+    p = gsort(p,'r');
 
-ach = 0;
-for i = 1 : 150
-    
-    if(max(YT1(:,i)) == YT1(1,i))
-        YT1(:,i) = [1; 0; 0];
-    elseif(max(YT1(:,i)) == YT1(2,i))
-        YT1(:,i) = [0; 1; 0];
-    else
-        YT1(:,i) = [0; 0; 1];
-    end
-    if(YT1(:,i) == D(:,i))
-        ach = ach+1;
+    pais = p(1:50,1:20);
+    p = [];
+    for i = 1:2:100
+       pai1 = grand(1,1,"uin",1,50);
+       pai2 = grand(1,1,"uin",1,50);
+       xcross = grand(1,1,"uin",1,20);
+       p(i,:) = [pais(pai1,1:xcross) pais(pai2,xcross+1:20)];
+       p(i+1,:) = [pais(pai2,1:xcross) pais(pai1,xcross+1:20)];
     end
 end
-// disp(YT1');
-disp("Acuracia do método leave-one-out: ");
-disp(ach/150);
+```
+### PARTE 4: Exibição dos resultados no console
+```
+disp(ant);
+disp("valor de x e y é: ");
+disp(xm);
+disp(" e ");
+disp(ym);
 ```
 ## Discussão dos resultados obtidos
 
-Ao executar o arquivo [tr2_q2_ELM.sce](tr2_q2_ELM.sce) no Scilab, teremos a execução do algoritmo ELM aplicado à base de dados iris_log. Foi utilizado o método leave one out e e ao fim da execução o console retorna a acurácia do método.
+Ao executar o arquivo [Q2_GA.sce](Q2_GA.sce) no Scilab, podemos verificar que o código tem inicio definindo a população no caso uma matriz 100 por 20, preenchida apenas com ‘zeros’ e ‘uns’ aleatoriamente, representando uma população de 100 indivíduos.
+Próximo passo foi converter os dados binários para números reais para aplicar na função e atribuir as notas de cada indivíduo. Em seguida a população é ordenada de acordo com sua nota em ordem decrescente, os 50 melhores indivíduos são selecionados para ser os pais dos próximos indivíduos. Em seguida são gerados dois índices aleatórios representando dois pais, estes indivíduos são combinados gerando dois filhos, esse processo é repetido até definir a nova população.
+O algoritmo repete estes passos 1000 vezes e no fim mostra: a maior nota e as coordenadas ‘x’ e ‘y’ correspondentes.
 
-### Parte 3: Multi Layer Perceptron (MLP)
-
-### Iniciando 
-Para a resolução desta questão e criação deste relatório foram usados os seguintes arquivos:
-
-* [tr2_q2_MLP.sce](tr2_q2_MLP.sce) - Código-fonte da classificação usando MLP (Multi Layer Perceptron)
-* [iris_log.dat](iris_log.dat) - Conjunto de dados da questão
-
-## Código comentado
-
-```
-// SEGUNDO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
-// Questão 2 (Perceptron Multi Camadas MLP)
-// Aluno: José Lopes de Souza Filho
-// Matrícula: 389097
-// Aplicação: Scilab, versão 6.0.2
-// SO: Linux Mint 19.2 Tina
-// Para que esta aplicação rode apropriadamente deve ser instalado o 
-// ANN Toolbox. (https://atoms.scilab.org/toolboxes/ANN_Toolbox)
-//-----------------------------------------------------------------------------
-
-clc;    //Limpa a tela
-clear;  //Limpa as variáveis armazenadas anteriormente
-
-// Assegura o mesmo ponto de início toda vez
-rand('seed', 0);
-
-// definição da rede
-// 4 neurônios por rede, incluindo a entrada
-// 4 neurônios na camada de entrada, 4 na camada oculta e 1 na camada de saída
-N = [4,4,3];
-
-//matriz de treinamento x deixando a primeira entrada de fora (leave-one-out)
-base = fscanfMat('iris_log.dat');
-x = base(2:150,1:4)';
-
-//Saída desejada: 100 para classe 1, 010 para classe 2, 001 para classe 3
-t = base(2:150,5:7)';
-
-//Taxa de aprendizado e limite de erro tolerado pela rede
-lp = [2.5, 0];
-
-//Inicializa a matriz de pesos
-W = ann_FF_init(N);
-
-//Ciclos de treinamento
-T = 100;
-
-W = ann_FF_Std_online(x,t,N,W,lp,T);
-//x é a matriz de treino t é a saída W são os pesos inicializados,
-//N é a arquitetura da rede neural, lp é a taxa de aprendizado e
-//T é o número de iterações
-
-//Execução completa
-retorno = ann_FF_run(x,N,W) //a rede N foi testada usando x como base de treino,
-// e W como os pesos das conexões
-```
-## Discussão dos resultados obtidos
-
-*IMPORTANTE: Para a correta execução deste código a toolbox ANN Toolbox deve ser instalada no SciLab. a toolBox pode ser encontrada no link: https://atoms.scilab.org/toolboxes/ANN_Toolbox.*
-Ao executar o arquivo [tr2_q2_MLP.sce](tr2_q2_MLP.sce) no Scilab, a matriz *resultado* é criada como saída da rede mostrando o seu grau de adaptação.
-
-### Parte 4: Perceptron
-
-### Iniciando 
-Para a resolução desta questão e criação deste relatório foram usados os seguintes arquivos:
-
-* [tr2_q2_perceptron.sce](tr2_q2_perceptron.sce) - Código-fonte da classificação usando Perceptron
-* [iris_log.dat](iris_log.dat) - Conjunto de dados da questão
-
-## Código comentado
-
-```
-// SEGUNDO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
-// Questão 2 (Perceptron)
-// Aluno: José Lopes de Souza Filho
-// Matrícula: 389097
-// Aplicação: Scilab, versão 6.0.2
-// SO: Linux Mint 19.2 Tina
-//-----------------------------------------------------------------------------
-
-clc;    //Limpa a tela
-clear;  //Limpa as variáveis armazenadas anteriormente
-
-base = fscanfMat ('iris_log.dat');  //Carrega a base de dados
-q = 3;                              //qtd de neurônios 
-p = 4;                              //qtd atributos
-n = 0.001;                          //taxa de aprendizagem
-X = base(:,1:4);                    //Carrega os dados de entrada na variável X
-D = base(:,5:7);                    //Carrega as saídas na variável D
-x_ones = ones(150,1)*(-1);          //Cria um vetor de 1s (bias)
-X = [x_ones X];                     //Insere o vetor de 1s na entrada (bias)
-W = zeros(q,p+1);                   //Cria a matriz de pesos
-X = X';                             //Transpõe a matriz de entrada
-D = D';                             //Transpõe a matriz de saída
-
-//Método leave-one-out
-disp("método leave-one-out: ");
-for x = 1 : 150
-    if (x==1)
-        lista = [x+1 : 150];
-    else
-        lista = [1:x-1, x+1 : 150];
-    end
-    for i = lista
-        Y = W*X(:,i);
-        E = D(:,i) - Y;
-        A = (X(:,i))';
-        W = W + n*E*A;
-       
-    end
-    XT = X(:,x);
-    YT(:,x) = W*XT;
-end
-ach = 0;
-for i = 1 : 150
-    
-    if(max(YT(:,i)) == YT(1,i))
-        YT(:,i) = [1; 0; 0];
-    elseif(max(YT(:,i)) == YT(2,i))
-        YT(:,i) = [0; 1; 0];
-    else
-        YT(:,i) = [0; 0; 1];
-    end
-    if(YT(:,i) == D(:,i))
-        ach = ach+1;
-    end
-end
-
-disp("Acurácia do método leave-one-out: ");
-disp(ach/150);
-```
-## Discussão dos resultados obtidos
-
-Ao executar o arquivo [tr2_q2_MLP.sce](tr2_q2_MLP.sce) no Scilab, rede é ativada e o console retorna o grau de acurácia usando o método one-leave-out.
+![Q2_GA_img1](https://user-images.githubusercontent.com/51038132/69892691-f1feb100-12e6-11ea-85e9-cd39cb693e9b.png)
+* Retorno do console ao executar o algoritmo
