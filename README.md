@@ -28,12 +28,10 @@ Este projeto é licenciado sob a MIT License - ver o arquivo [LICENSE](LICENSE) 
 ### Iniciando 
 Para a resolução desta questão e criação deste relatório foram usados os seguintes arquivos:
 
-* [tr2_q1_elm.sce](tr2_q1_elm.sce) - Código-fonte da aplicação proposta na questão
-* [aerogerador.dat](aerogerador.dat) - Conjunto de dados da questão
-* [grafico_1n.png](grafico_1n.png) - Gráfico de saída da rede com 1 neurônio
-* [grafico_7n.png](grafico_7n.png) - Gráfico de saída da rede com 7 neurônios
-* [grafico_17n.png](grafico_17n.png) - Gráfico de saída da rede com 17 neurônios
-* [console_t2_q1.png](console_t2_q1.png) - Retorno do console ao executar o código-fonte
+* [Q1_RBF.sce](Q1_RBF.sce) - Código-fonte da aplicação proposta na questão
+* [twomoons.dat](twomoons.dat) - Conjunto de dados da questão
+* [Q1_RBF_img1.png](Q1_RBF_img1.png) - Gráfico dos dados de treinamento twomoons clusterizado pelo k-means para encontrar as centroides
+* [Q1_RBF_img2.png](Q1_RBF_img2.png) - Retorno do console ao executar o código
 
 ## Código comentado
 
