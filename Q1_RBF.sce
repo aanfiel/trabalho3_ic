@@ -1,3 +1,11 @@
+// TERCEIRO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
+// Questão 1
+// Aluno: José Lopes de Souza Filho
+// Matrícula: 389097
+// Aplicação: Scilab, versão 6.0.2
+// SO: Linux Mint 19.2 Tina
+//-----------------------------------------------------------------------------
+
 clear;
 clc;
 clf;
