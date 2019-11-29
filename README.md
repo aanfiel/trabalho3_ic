@@ -49,7 +49,7 @@ clc;
 clf;
 base = fscanfMat('twomoons.dat');
 ```
-#PARTE 1: Cálculo das centróides usando K-means clustering
+### PARTE 1: Cálculo das centróides usando K-means clustering
 ```
 //Separa 90% dos dados para treino e 10% dos dados para teste
 //Base de treino - 450 amostras da primeira metade da base e 450 da última
@@ -142,7 +142,7 @@ cluster2y = X_2(:,2);
 scatter(cluster2x,cluster2y,26,"scilabgreen3","fill", ".");
 xtitle("Gráfico twomoons.dat clusterizado pelo k-means. Cada cor representa um cluster")
 ```
-#PARTE 2: Implementação da rede RBF
+### PARTE 2: Implementação da rede RBF
 ```
 //Par de RBF de saída do neurônio
 for i=1:900
@@ -162,7 +162,7 @@ W = [(((G' * G) \ G') * D(:, 1))'];
 
 d = G * W';
 ```
-#PARTE 3: Mostra as saídas da rede no console
+### PARTE 3: Mostra as saídas da rede no console
 ```
 disp("---------------------------- REDE RBF  ----------------------------");
 disp("-------- 2 neurônios na camada oculta + bias e 1 de saída ---------")
@@ -183,26 +183,16 @@ disp("----------------------------------------------")
 
 ## Discussão dos resultados obtidos
 
-Ao executar o arquivo [tr2_q1_elm.sce](tr2_q1_elm.sce) no Scilab, podemos verificar basicamente duas ações: 
-* A abertura da janela gráfica exibindo o gráfico da função da questão:
+Ao executar o arquivo [Q1_RBF.sce](Q1_RBF.sce) no Scilab, será retornado no console algumas informações da rede assim como uma janela gráfica com os dados clusterizados pelo algoritmo k-means durante a criação das centróides. Cada cluster identificado está de uma cor diferente.
 
-![grafico_7n](https://user-images.githubusercontent.com/51038132/68537069-df730680-033c-11ea-8a5a-449c099c77fe.png)
+![Q1_RBF_img1](https://user-images.githubusercontent.com/51038132/69892153-5454b300-12e1-11ea-96db-6fd54cf4054e.png)
+*Janela gráfica exibindo os dados de treino da base twomoons.dat*
 
-* O console irá retornar o valor do grau de adaptação aos dados:
+![Q2_RBF_img2](https://user-images.githubusercontent.com/51038132/69892154-5454b300-12e1-11ea-9dce-f4c2541e46a3.png)
+*Retorno do console ao executar o código*
 
-![console_t2_q1](https://user-images.githubusercontent.com/51038132/68537102-85bf0c00-033d-11ea-92be-b8b010801cec.png)
-
-* Ao alterar o número de neurônios, o grau de adaptação aos dados se altera bastante, atingindo um ponto ótimo com 7 neurônios. Encontrar o número ideal de neurônios da camada escondida não é uma tarefa fácil porque depende de uma série de fatores, muito dos quais não temos controle total. O valor de *q* é geralmente encontrado por tentativa-e-erro, em função da capacidade de generalização da rede.
-
-![grafico_1n](https://user-images.githubusercontent.com/51038132/68537068-df730680-033c-11ea-94e8-a79bacf27eb9.png)
-
-Retorno do gráfico com 1 neurônio usado.
-![grafico_7n](https://user-images.githubusercontent.com/51038132/68537069-df730680-033c-11ea-8a5a-449c099c77fe.png)
-
-Retorno do gráfico com 7 neurônios usados.
-![grafico_17n](https://user-images.githubusercontent.com/51038132/68537070-df730680-033c-11ea-9026-b8e4533f8d3e.png)
-
-Retorno do gráfico com 17 neurônios usados.
+No console, será retornado a matriz de centróides encontrada no problema, a matriz de pesos W e foram criadas mais duas matrizes. A matriz *G* retorna a saída das funções de base radial, sendo cada coluna referente a saída de um neurônio (para ver a matriz basta digitar (G) no console e a matriz *d* que contém as saídas da rede. Ela possui apenas uma coluna (1 neurônio de saída). Para visualizá-la basta digitar (d) no console.
+Observação.: Os valores e comportamento do gráfico podem ser diferentes a cada execução em função do caráter aleatório inicial de algumas etapas.
 
 ## Questão 2
 
