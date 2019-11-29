@@ -35,82 +35,150 @@ Para a resolução desta questão e criação deste relatório foram usados os s
 
 ## Código comentado
 
-### Parte 1: Preparação dos dados da rede
-Primeiramente, o conjunto de dados foi carregado e os dados de entrada e de saída foram divididos nos vetores X1 (entrada) e D (saída). Foi estipulado o número de neurônios *q*, o número de atributos *p* e o intervalo dos pesos *a* e *b*.
 ```
-clc;    //Limpa a tela
-clear;  //Limpa as variáveis armazenadas anteriormente
+// TERCEIRO TRABALHO DE INTELIGÊNCIA COMPUTACIONAL
+// Questão 1
+// Aluno: José Lopes de Souza Filho
+// Matrícula: 389097
+// Aplicação: Scilab, versão 6.0.2
+// SO: Linux Mint 19.2 Tina
+//-----------------------------------------------------------------------------
 
-//Carrega a base de dados 'aerogerador.dat' na variável base
-base = fscanfMat('aerogerador.dat');
-
-X1 = base(:,1); //Armazena a primeira coluna da base de dados na variável X1
-D = base(:,2);  //Armazena a segunda coluna na base de dados na variável D
-q = 7;          //Número de neurônios ocultos
-p = 1;          //Número de atributos
-a = 0; b = 1;   //Intervalo dos pesos
-```
-### Parte 2: Inicialização aleatória dos pesos dos neurônios ocultos
-A matriz W (matriz de pesos aleatórios) foi criada com *q* linhas e *p+1* colunas (p = número de atributos de entrada) com números aleatórios entre 0 e 1. Em seguida foi criada a matriz X (entradas) onde cada coluna corresponde a uma entrada na rede com dois valores. 1 do bias e o valor de entrada da base de dados. A matriz de saída D também foi transposta.
-
-```
-//Fase 1: Inicialização Aleatória dos Pesos dos Neurônios Ocultos
-
-//matriz de pesos aleatórios W, com q linhas e p + 1 colunas
-W = a + (b - a).*rand(q,p+1);
-
-x_ones = ones(2250,1);  //Vetor coluna com 2250 linhas de 1s
-
-/*Reorganiza o vetor de entrada X onde a primeira coluna representa
-a entrada bias (valores 1) e a segunda coluna representa os valores
-dos dados de entrada coletados. */
-
-X(:,1) = x_ones;
-X(:,2) = X1;
-X = X';         //Transpõe a matriz X (cada coluna corresponde a uma entrada)
-D = D';         //Transpõe a matriz D (cada coluna corresponde a uma saída)
-```
-### Parte 3: Acúmulo das saídas dos neurônios ocultos *matriz u* e matriz da função de ativação Z
-Nesta parte do código, foi criado a matriz com o acúmulo das saídas. Esses valores foram passados pela função de ativação e uma matriz Z com esses valores foi criada. Uma nova coluna de valores 1 foi inserida e a matriz transposta.
-
-```
-//Fase 2: Acúmulo das Saídas dos Neurônios Ocultos
-
-u = W*X;                //Matriz de saída u onde cada coluna representa as saidas do set de neurônios
-Z = 1./(1+exp(-u));     //Passa a matriz u pela função de ativação e armazena os valores em Z
-Z = ([x_ones Z'])';     //Acrescenta uma coluna de 1s na matriz Z e a transpõe
-```
-### Parte 4: Cálculo dos pesos dos neurônios de saída
-A matriz de pesos *M* é calculada usando método dos mínimos quadrados.
-
-```
-//Fase 3: Cálculo dos Pesos dos Neurônios de Saída
-
-M = D*Z'*(Z*Z')^(-1);   //Aplica o método dos mínimos quadrados e encontra a matriz M de saída
-```
-### Parte 5: Ativação da rede
-A rede é ativada criando o vetor linha Y que é a saída da rede.
-
-```
-//Teste e Capacidade de Generalização da Rede ELM
-
-Y = M*Z;    //Ativa os neurônios da camada de saída
-```
-### Parte 6: Avaliação do modelo
-Conforme solicitado na questão, o modelo é testado usando a métrica R2 e o resultado é exibido no console.
-```
-//Avaliação do modelo pela métrica R2
-R2 = 1-(sum((D-Y).^2)/sum((D - mean(D)).^2));
-disp("Grau de Adaptação da saída da rede R2: " + string(R2));
-```
-### Parte 7: Plotagem dos gráficos
-Para finalizar os dois gráficos são plotados, o dos dados iniciais do aerogerador e o dos dados da saída da rede ELM.
-```
-//Plota os gráficos dos dados do aerogerador e da rede ativada
+clear;
+clc;
 clf;
-scatter(X1,base(:,2), "scilabblue2", ".");
-plot2d(X1,Y);
-xlabel("Regressão usando ELM (Extreme Learning machine");
+base = fscanfMat('twomoons.dat');
+```
+#PARTE 1: Cálculo das centróides usando K-means clustering
+```
+//Separa 90% dos dados para treino e 10% dos dados para teste
+//Base de treino - 450 amostras da primeira metade da base e 450 da última
+base_treino = base(1:450,:);
+base_treino(451:900,:) = base(500:949,:);
+//Base de teste - 50 amostras da primeira metade da base e 51 da última
+base_teste = base(451:499,:);
+base_teste(50:101,:) = base(950:1001,:);
+
+//Define as entradas da rede (X) e a saída esperada (D)
+X = base_treino(:,1:2);    //Entradas da rede
+D = base_treino(:,3);      //Saídas da rede
+
+//Implementa k-means
+//cria duas centroides aleatorias - primeira coluna eixo X e segunda coluna eixo Y
+//cada linha uma centroide
+centroides = rand(2, 2) .* (max(X) - min(X)) + min(X);
+
+//Calcula a distancia de todos os pontos para a centroide 1
+distancias(:,1) = sqrt(((centroides(1,1)-X(:,1))^2) + ((centroides(1,2)-X(:,2))^2));
+//Calcula a distancia de todos os pontos para a centroide 2
+distancias(:,2) = sqrt(((centroides(2,1)-X(:,1))^2) + ((centroides(2,2)-X(:,2))^2));
+//Testa qual a menor distância e classifica o ponto como cluster 1 ou 2.
+X_classif = X; //copia a matriz de entrada para uma nova que terá a classificação
+for i=1:900
+    [min_valor, min_linha] = min(distancias(i,:));
+    X_classif(i,3) = min_linha;
+end
+//Entra em loop de classificação até que as centroides não se movam mais
+
+//calcula novas posições para as centroides
+somax1=0;
+somay1=0;
+somax2=0;
+somay2=0;
+
+centroides_atuais = centroides;
+centroides_anteriores = [0,0,0,0];
+centroides_temporarias = [0,0,0,0];
+
+while centroides_atuais <> centroides_anteriores,
+//clf;
+for i=1:900
+
+    if X_classif(i,3) == 1 then
+        somax1 = (somax1+X_classif(i,1));
+        somay1 = (somay1+X_classif(i,2));
+    elseif X_classif(i,3) == 2 then
+        somax2 = (somax2+X_classif(i,1));
+        somay2 = (somay2+X_classif(i,2));
+    end
+end
+mediax1 = somax1/900;
+mediay1 = somay1/900;
+mediax2 = somax2/900;
+mediay2 = somay2/900;
+
+somax1 = 0;
+somay1 = 0;
+somax2 = 0;
+somay2 = 0;
+
+centroides_temporarias = [mediax1, mediay1; mediax2, mediay2];
+centroides_anteriores = centroides_atuais;
+centroides_atuais = centroides_temporarias;
+
+end
+
+//Cria duas matrizes classificadas e plota o gráfico classificado pelo k-means
+k=1;
+j=1;
+
+for i=1:900
+
+    if X_classif(i,3) == 1 then
+        X_1(k,:) = X_classif(i,:);
+        k = k+1
+    elseif X_classif(i,3) == 2 then
+        X_2(j,:) = X_classif(i,:);
+        j = j+1
+    end
+end
+
+cluster1x = X_1(:,1);
+cluster1y = X_1(:,2);
+scatter(cluster1x,cluster1y,26,"scilabred3","fill", ".");
+
+cluster2x = X_2(:,1);
+cluster2y = X_2(:,2);
+scatter(cluster2x,cluster2y,26,"scilabgreen3","fill", ".");
+xtitle("Gráfico twomoons.dat clusterizado pelo k-means. Cada cor representa um cluster")
+```
+#PARTE 2: Implementação da rede RBF
+```
+//Par de RBF de saída do neurônio
+for i=1:900
+    G(i,1) = 1;
+    if X_classif(i,3) == 1 then
+        G(i,2) = exp(-(sqrt(((X_classif(i,1)-centroides(1,1))^2) + ((X_classif(i,2)-centroides(1,2))^2)))^2);
+    elseif X_classif(i,3) == 2 then
+        G(i,3) = exp(-(sqrt(((X_classif(i,1)-centroides(2,1))^2) + ((X_classif(i,2)-centroides(2,2))^2)))^2);
+    end
+end
+
+// Matriz de pesos W
+
+W = [(((G' * G) \ G') * D(:, 1))'];
+
+// Calcula a saída da rede (d)
+
+d = G * W';
+```
+#PARTE 3: Mostra as saídas da rede no console
+```
+disp("---------------------------- REDE RBF  ----------------------------");
+disp("-------- 2 neurônios na camada oculta + bias e 1 de saída ---------")
+disp("Matriz de centroides encontrada (centroides_atuais) (onde cada linha é uma centróide)");
+disp(centroides_atuais);
+disp("Obs.: Método usado para achar as centróides: K-means clustering");
+disp("----------------------------------------------")
+disp("Matriz de pesos (W) encontrada (onde cada elemento é um peso)");
+disp(W);
+disp("----------------------------------------------")
+disp("Matriz de saídas das duas funções: G");
+disp("Obs.: Cada coluna é a saída de um neurônio e a primeira é o bias");
+disp("----------------------------------------------")
+disp("Matriz de saídas da rede: d");
+disp("Obs.: Cada linha representa a saída de um dado input");
+disp("----------------------------------------------")
 ```
 
 ## Discussão dos resultados obtidos
